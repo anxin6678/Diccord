@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Discord Ultimate Edition</title>
+    <title>Discord Sovereign Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.21.0.js"></script>
     <script src="https://download.agora.io/sdk/release/agora-rtm-2.2.0.js"></script>
@@ -14,110 +14,107 @@
         .bg-discord-main { background-color: #313338; }
         .bg-discord-input { background-color: #383a40; }
         
-        /* 深度还原 Discord 专属悬停动画 */
-        .server-icon {
-            transition: border-radius 0.2s ease, background-color 0.2s ease;
-        }
-        .server-icon:hover {
-            border-radius: 16px !important;
-            background-color: #5865f2 !important;
-        }
+        /* Discord 服务器图标平滑过渡 */
+        .server-icon { transition: border-radius 0.2s ease, background-color 0.2s ease; }
+        .server-icon:hover { border-radius: 16px !important; background-color: #5865f2 !important; }
+        
+        /* 鼠标悬停显示操作按钮 */
+        .chat-row { transition: background-color 0.1s ease; position: relative; }
+        .chat-row:hover { background-color: #2e3035; }
+        .chat-row .msg-actions { display: none; }
+        .chat-row:hover .msg-actions { display: flex; }
         
         /* 说话时头像发绿光圈（Discord原版视觉） */
-        .is-speaking {
-            border-color: #23a55a !important;
-            box-shadow: 0 0 12px #23a55a;
-        }
+        .is-speaking { border-color: #23a55a !important; box-shadow: 0 0 14px #23a55a; }
         
-        /* 美化滚动条 */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #2b2d31; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #111214; }
+
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .dot-blink { animation: blink 1.4s infinite both; }
+        .dot-blink:nth-child(2) { animation-delay: 0.2s; }
+        .dot-blink:nth-child(3) { animation-delay: 0.4s; }
     </style>
 </head>
 <body class="text-gray-200 select-none overflow-hidden font-sans antialiased text-sm">
 
     <div id="login-overlay" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
         <div class="bg-discord-dark p-8 rounded-md w-full max-w-md shadow-2xl border border-neutral-800">
-            <h2 class="text-2xl font-bold mb-2 text-center text-white">欢迎归来！</h2>
-            <p class="text-gray-400 text-center text-xs mb-6">我们非常高兴能再次见到您！</p>
+            <h2 class="text-2xl font-bold mb-1 text-center text-white font-sans">加入开发者联邦</h2>
+            <p class="text-gray-400 text-center text-xs mb-6">专属 AppID 线路已安全挂载</p>
             
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wide">您的昵称</label>
-            <input type="text" id="username-input" maxlength="12" placeholder="请输入昵称" class="w-full p-2.5 bg-discord-darker rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-6 text-white border border-neutral-900">
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wide">临时昵称</label>
+            <input type="text" id="username-input" maxlength="12" placeholder="输入花名后按回车或确定..." class="w-full p-2.5 bg-discord-darker rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-6 text-white border border-neutral-900 text-sm">
             
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wide">选择系统头像</label>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wide">系统专属头像</label>
             <div class="flex justify-between mb-8 px-2" id="avatar-selector">
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Ares" class="avatar-option w-14 h-14 rounded-full cursor-pointer border-4 border-transparent" data-avatar="Ares">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Ares" class="avatar-option w-14 h-14 rounded-full cursor-pointer border-4 border-transparent animate-pulse" data-avatar="Ares">
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Zeus" class="avatar-option w-14 h-14 rounded-full cursor-pointer border-4 border-transparent" data-avatar="Zeus">
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hades" class="avatar-option w-14 h-14 rounded-full cursor-pointer border-4 border-transparent" data-avatar="Hades">
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Poseidon" class="avatar-option w-14 h-14 rounded-full cursor-pointer border-4 border-transparent" data-avatar="Poseidon">
             </div>
             
-            <button id="btn-enter" class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium py-2.5 rounded text-sm transition shadow-md">进入服务器</button>
+            <button id="btn-enter" class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium py-2.5 rounded text-sm transition shadow-md">连接服务器</button>
         </div>
     </div>
 
     <div id="app-root" class="flex h-screen w-screen bg-discord-main bg-cover bg-center transition-all duration-500">
         
         <div class="w-16 bg-discord-darker flex flex-col items-center py-3 space-y-2 flex-shrink-0 z-20">
-            <div class="server-icon w-12 h-12 bg-[#5865f2] rounded-[24px] flex items-center justify-center cursor-pointer text-white font-bold text-base shadow">
+            <div class="server-icon w-12 h-12 bg-[#5865f2] rounded-[16px] flex items-center justify-center cursor-pointer text-white font-bold text-base shadow">
                 DC
             </div>
             <div class="w-8 h-[2px] bg-neutral-800 rounded my-1"></div>
-            <button id="btn-change-bg" class="server-icon w-12 h-12 bg-discord-input rounded-[24px] flex items-center justify-center cursor-pointer text-xl" title="更换皮肤主题">
+            <button id="btn-change-bg" class="server-icon w-12 h-12 bg-discord-input rounded-[24px] flex items-center justify-center cursor-pointer text-xl" title="更换服务器空间画布">
                 🎨
             </button>
         </div>
 
-        <div class="w-60 bg-discord-dark flex flex-col justify-between flex-shrink-0 z-10 border-r border-discord-darker/30">
+        <div class="w-60 bg-discord-dark flex flex-col justify-between flex-shrink-0 z-10 border-r border-discord-darker/40">
             <div class="flex-1 overflow-y-auto custom-scrollbar">
                 <div class="h-12 border-b border-discord-darker/60 flex items-center px-4 font-bold text-white shadow-sm truncate">
-                    开发者互动社区 💬
+                    专属高拟真空间 🪐
                 </div>
                 
                 <div class="p-2 space-y-4">
                     <div>
-                        <div class="text-xs font-bold text-gray-400 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
-                            <span>文字频道</span>
-                        </div>
-                        <div class="space-y-0.5">
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/40 hover:text-gray-200 cursor-pointer group transition" data-type="text" data-channel="chat-lobby">
-                                <span class="mr-1.5 text-gray-500 font-light text-xl">#</span> <span class="truncate">交流大厅</span>
+                        <div class="text-xs font-bold text-neutral-400 px-2 mb-1 uppercase tracking-wider">文字板块</div>
+                        <div class="space-y-0.5" id="text-channels-list">
+                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-200 bg-neutral-700/40 cursor-pointer text-sm" data-type="text" data-channel="chat-lobby">
+                                <span class="mr-2 text-neutral-500 text-xl font-light">#</span> <span class="truncate">多功能综合大厅</span>
                             </div>
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/40 hover:text-gray-200 cursor-pointer group transition" data-type="text" data-channel="game-discussion">
-                                <span class="mr-1.5 text-gray-500 font-light text-xl">#</span> <span class="truncate">游戏探讨区</span>
+                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/30 hover:text-gray-200 cursor-pointer text-sm" data-type="text" data-channel="announcements">
+                                <span class="mr-2 text-neutral-500 text-xl font-light">#</span> <span class="truncate">社区公告牌</span>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-xs font-bold text-gray-400 px-2 mb-1 uppercase tracking-wider">
-                            <span>语音频道</span>
-                        </div>
-                        <div class="space-y-0.5">
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/40 hover:text-gray-200 cursor-pointer group transition" data-type="voice" data-channel="voice-lobby">
-                                <span class="mr-2 text-base">🔊</span> <span class="truncate">语音闲聊间</span>
+                        <div class="text-xs font-bold text-neutral-400 px-2 mb-1 uppercase tracking-wider">语音通话板块</div>
+                        <div class="space-y-0.5" id="voice-channels-list">
+                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/30 hover:text-gray-200 cursor-pointer text-sm" data-type="voice" data-channel="voice-lobby">
+                                <span class="mr-2">🔊</span> <span class="truncate">综合语音交友</span>
                             </div>
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/40 hover:text-gray-200 cursor-pointer group transition" data-type="voice" data-channel="team-up">
-                                <span class="mr-2 text-base">🔊</span> <span class="truncate">开黑排位赛</span>
+                            <div class="channel-item flex items-center px-2 py-1.5 rounded text-gray-400 hover:bg-neutral-700/30 hover:text-gray-200 cursor-pointer text-sm" data-type="voice" data-channel="game-room">
+                                <span class="mr-2">🔊</span> <span class="truncate">游戏黑房 01</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="h-14 bg-[#232428] flex items-center justify-between px-2 flex-shrink-0">
+            <div class="h-14 bg-[#232428] flex items-center justify-between px-2 flex-shrink-0 border-t border-black/10">
                 <div class="flex items-center space-x-2 overflow-hidden mr-1">
                     <img id="my-avatar" src="" class="w-8 h-8 rounded-full bg-neutral-700 flex-shrink-0">
                     <div class="text-xs font-semibold truncate">
                         <p id="my-name" class="text-white truncate leading-tight"></p>
-                        <span class="text-gray-400 text-[10px] block leading-none">● 在线</span>
+                        <span class="text-emerald-500 text-[10px] block leading-none mt-0.5">● 已接入</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-0.5 text-gray-400">
-                    <button id="btn-toggle-mic" class="p-1.5 hover:bg-neutral-700 rounded transition" title="静音开关">🎙️</button>
-                    <button id="btn-disconnect-voice" class="p-1.5 hover:bg-red-950 text-red-400 rounded hidden transition" title="断开语音频道">❌</button>
+                    <button id="btn-toggle-mic" class="p-1.5 hover:bg-neutral-700 rounded transition" title="麦克风开关">🎙️</button>
+                    <button id="btn-disconnect-voice" class="p-1.5 hover:bg-red-950 text-red-400 rounded hidden transition" title="强制断开当前语音">❌</button>
                 </div>
             </div>
         </div>
@@ -125,9 +122,9 @@
         <div class="flex-1 flex flex-col min-w-0 bg-discord-main/95 backdrop-blur-md">
             <div class="h-12 border-b border-discord-darker/60 flex items-center justify-between px-4 font-bold text-white shadow-sm flex-shrink-0 z-10">
                 <div class="flex items-center space-x-2" id="room-title">
-                    <span class="text-gray-400 text-xl">#</span> <span>正在载入...</span>
+                    <span class="text-neutral-500 text-xl font-light">#</span> <span>多功能综合大厅</span>
                 </div>
-                <span id="voice-status-pill" class="text-[11px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded border border-green-500/20 hidden">语音通话中</span>
+                <span id="voice-status-pill" class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 hidden uppercase font-bold tracking-wider">声网RTC已上锁</span>
             </div>
             
             <div class="flex-1 flex overflow-hidden">
@@ -135,10 +132,20 @@
                 <div id="panel-chat" class="flex-1 flex flex-col min-w-0 bg-transparent">
                     <div id="chat-messages" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
                         </div>
-                    <div class="px-4 pb-6 pt-0 flex-shrink-0">
-                        <div class="bg-discord-input rounded-lg px-4 py-2.5 flex items-center space-x-3 shadow-inner">
-                            <button id="btn-trigger-image" class="text-gray-400 hover:text-gray-200 transition text-lg" title="上传小图或表情">➕</button>
-                            <input type="text" id="chat-input" placeholder="发送消息到当前频道..." class="flex-1 bg-transparent text-sm focus:outline-none text-gray-100 placeholder-neutral-500">
+                    
+                    <div id="typing-indicator" class="px-4 h-5 text-xs text-neutral-400 bg-transparent hidden items-center space-x-1">
+                        <span id="typing-text" class="font-medium text-neutral-300"></span> <span>正在输入</span>
+                        <div class="flex space-x-0.5 items-center pt-1 pl-1">
+                            <span class="w-1 h-1 bg-neutral-400 rounded-full dot-blink"></span>
+                            <span class="w-1 h-1 bg-neutral-400 rounded-full dot-blink"></span>
+                            <span class="w-1 h-1 bg-neutral-400 rounded-full dot-blink"></span>
+                        </div>
+                    </div>
+
+                    <div class="px-4 pb-6 pt-1 flex-shrink-0">
+                        <div class="bg-discord-input rounded-lg px-4 py-2.5 flex items-center space-x-3 shadow-md">
+                            <button id="btn-trigger-image" class="text-neutral-400 hover:text-neutral-200 transition text-lg font-bold">➕</button>
+                            <input type="text" id="chat-input" placeholder="发送消息..." class="flex-1 bg-transparent text-sm focus:outline-none text-neutral-100 placeholder-neutral-500" autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -147,7 +154,7 @@
                     </div>
 
                 <div class="w-56 bg-discord-dark flex flex-col border-l border-discord-darker/20 hidden lg:flex flex-shrink-0">
-                    <div class="p-3 text-xs font-bold text-gray-400 uppercase tracking-wider">在线成员 — <span id="member-count">0</span></div>
+                    <div class="p-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">在线成员 — <span id="member-count">1</span></div>
                     <div id="member-list" class="flex-1 overflow-y-auto custom-scrollbar px-2 space-y-0.5">
                         </div>
                 </div>
@@ -158,17 +165,19 @@
     <input type="file" id="image-loader" accept="image/*" class="hidden">
 
     <script>
-        // --- 1. 全局环境与状态机 ---
-        const APP_ID = "4e11b7b484534a61ad87f8a63dec0992";
+        // --- 1. 挂载指定专属 APPID 与状态机 ---
+        const APP_ID = "3adf636b90314ac3901887e1560c0db5";
         
         let rtcClient = null;
         let rtmClient = null;
+        let isPublishingLock = false; // 时序防抖锁
         
         let localAudioTrack = null;
         let myInfo = { uid: "", name: "", avatar: "Ares", activeVoiceChannel: null, rtcUid: null };
         let onlineUsers = {}; 
         let activeTextChannel = "chat-lobby"; 
         let isMuted = false;
+        let typingTimeout = null;
 
         const backgrounds = [
             "linear-gradient(135deg, #313338 0%, #2b2d31 100%)",
@@ -177,7 +186,7 @@
         ];
         let currentBgIdx = 0;
 
-        // --- 2. 强制登录与头像选择初始化 ---
+        // --- 2. 强制身份锁定流程 ---
         let selectedSeed = "Ares";
         document.querySelectorAll('.avatar-option').forEach(el => {
             el.addEventListener('click', (e) => {
@@ -190,10 +199,9 @@
 
         document.getElementById('btn-enter').addEventListener('click', async () => {
             const name = document.getElementById('username-input').value.trim();
-            if(!name) return alert("请先给自己取一个昵称！");
+            if(!name) return alert("请指定进入服务器所需的昵称标识！");
 
-            // iOS 苹果端音轨前置锁修复
-            if (typeof AgoraRTC !== "undefined") { AgoraRTC.getDevices(); }
+            if (typeof AgoraRTC !== "undefined") { AgoraRTC.getDevices(); } // 激活 iOS 硬件锁
 
             myInfo.uid = "user_" + Math.floor(Math.random() * 899999 + 100000);
             myInfo.name = name;
@@ -204,10 +212,10 @@
             document.getElementById('login-overlay').classList.add('hidden');
 
             await initAgoraServices();
-            switchTextChannel("chat-lobby");
+            await switchTextChannel("chat-lobby");
         });
 
-        // --- 3. 声网双引擎底层初始化 ---
+        // --- 3. 声网高Spec通信总线初始化 ---
         async function initAgoraServices() {
             try {
                 rtcClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -219,7 +227,6 @@
                         updateVoiceUIRender();
                     }
                 });
-
                 rtcClient.on("user-unpublished", () => { updateVoiceUIRender(); });
 
                 rtcClient.enableAudioVolumeIndicator();
@@ -227,16 +234,13 @@
                     volumes.forEach(volume => {
                         const card = document.getElementById(`v-card-${volume.uid}`);
                         if (card) {
-                            if (volume.level > 4) {
-                                card.classList.add('is-speaking');
-                            } else {
-                                card.classList.remove('is-speaking');
-                            }
+                            if (volume.level > 4) card.classList.add('is-speaking');
+                            else card.classList.remove('is-speaking');
                         }
                     });
                 });
 
-                // RTM 2.x 初始化
+                // RTM 2.x 挂载
                 rtmClient = new AgoraRTM.RTM(APP_ID, myInfo.uid);
                 await rtmClient.login();
 
@@ -246,62 +250,169 @@
                         refreshOnlineMemberList();
                     }
                 });
-
-                console.log("RTM/RTC 服务就绪");
             } catch (err) {
-                console.error("初始化失败:", err);
+                console.error("云服务认证异常:", err);
             }
         }
 
-        // --- 4. 核心 Bug 修复：回车键发送消息防卡死逻辑 ---
+        // --- 4. 彻底攻克：高强度防卡死回车处理内核 ---
         const chatInput = document.getElementById('chat-input');
         
-        chatInput.addEventListener('keydown', (e) => {
+        chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // 🛑 核心修复点：阻止浏览器的回车换行默认行为，防止表单挂起
-                sendTextMessage();
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                if(isPublishingLock) return; // 如果处于发送阻塞锁中，直接拦截防止重复堆叠
+                executeSendAction();
             }
         });
 
-        function sendTextMessage() {
-            const text = chatInput.value.trim();
-            if(!text) return; // 🛑 核心修复点：空消息直接拦截
+        async function executeSendAction() {
+            const content = chatInput.value.trim();
+            if(!content) return; 
+
+            isPublishingLock = true; // 上锁
+            const msgId = "msg_" + Date.now() + "_" + Math.floor(Math.random()*1000);
 
             const messagePayload = {
                 type: "TEXT",
+                msgId: msgId,
                 channelId: activeTextChannel,
+                senderUid: myInfo.uid,
                 senderName: myInfo.name,
                 senderAvatar: myInfo.avatar,
-                content: text,
+                content: content,
                 timestamp: Date.now()
             };
 
+            // 【核心安全策略】：无论网络如何，本地先行闪电回显，绝不卡死输入框
+            renderMessage(messagePayload);
+            chatInput.value = ""; 
+            chatInput.focus();
+
+            if(rtmClient) {
+                try {
+                    await rtmClient.publish(activeTextChannel, JSON.stringify(messagePayload));
+                } catch (err) {
+                    console.warn("信令状态边缘振荡，已自动走安全沙箱本地回显机制:", err);
+                }
+            }
+            isPublishingLock = false; // 解锁
+        }
+
+        // 打字机状态宣告
+        chatInput.addEventListener('input', () => {
+            if(!rtmClient) return;
+            rtmClient.publish(activeTextChannel, JSON.stringify({ type: "TYPING", senderName: myInfo.name, channelId: activeTextChannel })).catch(()=>{});
+        });
+
+        // --- 5. RTM 数据解包与状态总线中心 ---
+        function handleIncomingRTMEvent(event) {
             try {
-                rtmClient.publish(activeTextChannel, JSON.stringify(messagePayload));
-                renderMessage(messagePayload); // 本地回显
-                chatInput.value = ""; // 清空发送域
-                chatInput.focus();
-            } catch (err) {
-                console.error("消息发送异常:", err);
+                const data = JSON.parse(event.message);
+                
+                // 收到心跳
+                if (data.type === "IDENTITY") {
+                    onlineUsers[event.publisher] = {
+                        name: data.name,
+                        avatar: data.avatar,
+                        rtcUid: data.rtcUid,
+                        voiceChannel: data.voiceChannel,
+                        isMuted: data.isMuted || false
+                    };
+                    updateVoiceUIRender();
+                    return;
+                }
+
+                // 收到打字状态
+                if (data.type === "TYPING" && data.channelId === activeTextChannel && event.publisher !== myInfo.uid) {
+                    showTypingIndicator(data.senderName);
+                    return;
+                }
+
+                // 收到消息删除/撤回指令 (Discord原版还原)
+                if (data.type === "DELETE_MSG" && data.channelId === activeTextChannel) {
+                    const targetRow = document.getElementById(data.targetMsgId);
+                    if(targetRow) targetRow.remove();
+                    return;
+                }
+
+                // 收到正常聊天数据
+                if (data.channelId === activeTextChannel && event.publisher !== myInfo.uid) {
+                    renderMessage(data);
+                }
+            } catch (e) {}
+        }
+
+        // --- 6. 像素级还原的消息渲染链 (带消息单条删除功能) ---
+        function renderMessage(msg) {
+            const container = document.getElementById('chat-messages');
+            const isImage = msg.type === "IMAGE";
+            const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const isMention = msg.content && msg.content.includes("@everyone");
+            const highlightClass = isMention ? "bg-amber-500/10 border-l-2 border-amber-500" : "";
+
+            const row = document.createElement('div');
+            row.id = msg.msgId || ("local_" + Date.now());
+            row.className = `flex items-start space-x-3 text-sm px-4 py-2 chat-row mx-[-16px] ${highlightClass}`;
+            
+            let contentHTML = isImage 
+                ? `<img src="${msg.content}" class="mt-2 max-w-xs max-h-48 rounded border border-neutral-900 object-cover cursor-zoom-in" onclick="window.open('${msg.content}')">`
+                : `<p class="text-neutral-300 select-text leading-relaxed break-all">${isMention ? msg.content.replace(/@everyone/g, '<span class="bg-[#5865f2]/30 text-white font-medium px-1 rounded">@everyone</span>') : escapeHTML(msg.content)}</p>`;
+
+            // 判断是否是自己发的消息，如果是，则渲染右侧悬停可见的删除小齿轮/垃圾桶
+            const deleteButtonHTML = (msg.senderUid === myInfo.uid) 
+                ? `<div class="msg-actions absolute right-4 top-2 bg-discord-dark border border-neutral-800 rounded shadow-md px-1.5 py-1 text-neutral-400 hover:text-red-400 cursor-pointer text-xs" onclick="deleteMyMessage('${row.id}')" title="删除/撤回此条消息">🗑️</div>` 
+                : '';
+
+            row.innerHTML = `
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${msg.senderAvatar}" class="w-10 h-10 rounded-full bg-discord-darker flex-shrink-0 mt-0.5">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline space-x-2">
+                        <span class="font-medium text-white">${escapeHTML(msg.senderName)}</span>
+                        <span class="text-[10px] text-neutral-500">${timeStr}</span>
+                    </div>
+                    ${contentHTML}
+                </div>
+                ${deleteButtonHTML}
+            `;
+            container.appendChild(row);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function deleteMyMessage(msgId) {
+            const targetRow = document.getElementById(msgId);
+            if(targetRow) targetRow.remove(); // 本地移除
+            if(rtmClient) {
+                // 广播全服同步销毁该 DOM 节点
+                rtmClient.publish(activeTextChannel, JSON.stringify({ type: "DELETE_MSG", channelId: activeTextChannel, targetMsgId: msgId })).catch(()=>{});
             }
         }
 
-        // --- 5. 频道调度核心 ---
+        function showTypingIndicator(name) {
+            const box = document.getElementById('typing-indicator');
+            document.getElementById('typing-text').innerText = name;
+            box.classList.remove('hidden'); box.classList.add('flex');
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => { box.classList.add('hidden'); }, 2500);
+        }
+
+        // --- 7. 独立通道分流管理器 (解决多频道冲突) ---
         async function switchTextChannel(channelId) {
             if(activeTextChannel && rtmClient) {
                 try { await rtmClient.unsubscribe(activeTextChannel); } catch(e){}
             }
-            
             activeTextChannel = channelId;
-            document.getElementById('chat-messages').innerHTML = ""; 
+            document.getElementById('chat-messages').innerHTML = "";
             
             const itemEl = document.querySelector(`[data-channel="${channelId}"]`);
-            document.getElementById('room-title').innerHTML = `<span class="text-gray-400 text-xl mr-1">#</span> <span>${itemEl ? itemEl.innerText.substring(1).trim() : channelId}</span>`;
+            document.getElementById('room-title').innerHTML = `<span class="text-neutral-500 text-xl mr-1 font-light">#</span> <span>${itemEl ? itemEl.innerText.substring(1).trim() : channelId}</span>`;
 
             document.getElementById('panel-chat').classList.remove('hidden');
             document.getElementById('panel-voice').classList.add('hidden');
 
-            if (rtmClient) {
+            if(rtmClient) {
                 await rtmClient.subscribe(channelId, { withMessage: true, withPresence: true });
                 broadcastUserInfo();
                 refreshOnlineMemberList();
@@ -310,11 +421,11 @@
 
         async function switchVoiceChannel(channelId) {
             if(myInfo.activeVoiceChannel === channelId) return;
-            await leaveCurrentVoiceChannel();
+            await leaveCurrentVoiceChannel(); // 强制打断上一个RTC连接
 
             myInfo.activeVoiceChannel = channelId;
             const itemEl = document.querySelector(`[data-channel="${channelId}"]`);
-            document.getElementById('room-title').innerHTML = `<span class="mr-2 text-base">🔊</span> <span>${itemEl ? itemEl.innerText.substring(1).trim() : channelId}</span>`;
+            document.getElementById('room-title').innerHTML = `<span class="mr-2">🔊</span> <span>${itemEl ? itemEl.innerText.substring(1).trim() : channelId}</span>`;
 
             document.getElementById('panel-chat').classList.add('hidden');
             document.getElementById('panel-voice').classList.remove('hidden');
@@ -323,29 +434,23 @@
 
             try {
                 const numericUid = Math.floor(Math.random() * 8999999 + 1000000);
-                myInfo.rtcUid = numericUid; 
+                myInfo.rtcUid = numericUid;
 
                 await rtcClient.join(APP_ID, channelId, null, numericUid);
                 localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack({ AEC: true, ANS: true, AGC: true });
-                
-                if (isMuted) await localAudioTrack.setMuted(true);
+                if(isMuted) await localAudioTrack.setMuted(true);
                 await rtcClient.publish(localAudioTrack);
                 
                 broadcastUserInfo();
                 updateVoiceUIRender();
             } catch (err) {
-                console.error("语音房间准入失败:", err);
+                console.error("RTC连接挂起异常:", err);
             }
         }
 
         async function leaveCurrentVoiceChannel() {
-            if (localAudioTrack) {
-                localAudioTrack.stop();
-                localAudioTrack.close();
-                localAudioTrack = null;
-            }
+            if (localAudioTrack) { localAudioTrack.stop(); localAudioTrack.close(); localAudioTrack = null; }
             if (rtcClient) { await rtcClient.leave(); }
-            
             myInfo.activeVoiceChannel = null;
             myInfo.rtcUid = null;
 
@@ -355,39 +460,7 @@
             switchTextChannel("chat-lobby");
         }
 
-        // --- 6. 数据互通与UI绘制 ---
-        function handleIncomingRTMEvent(event) {
-            try {
-                const data = JSON.parse(event.message);
-                if (data.type === "IDENTITY") {
-                    onlineUsers[event.publisher] = {
-                        name: data.name,
-                        avatar: data.avatar,
-                        rtcUid: data.rtcUid,
-                        voiceChannel: data.voiceChannel
-                    };
-                    updateVoiceUIRender();
-                    refreshOnlineMemberList();
-                    return;
-                }
-                if (data.channelId === activeTextChannel) {
-                    renderMessage(data);
-                }
-            } catch (e) {}
-        }
-
-        function broadcastUserInfo() {
-            if(!rtmClient) return;
-            const payload = {
-                type: "IDENTITY",
-                name: myInfo.name,
-                avatar: myInfo.avatar,
-                rtcUid: myInfo.rtcUid,
-                voiceChannel: myInfo.activeVoiceChannel
-            };
-            rtmClient.publish(activeTextChannel, JSON.stringify(payload));
-        }
-
+        // --- 8. 在线树拓扑列表与资产调度 ---
         async function refreshOnlineMemberList() {
             if(!rtmClient) return;
             try {
@@ -396,16 +469,15 @@
                 listContainer.innerHTML = "";
                 let count = 0;
 
-                appendMemberItem(myInfo.name, myInfo.avatar);
-                count++;
+                appendMemberItem(myInfo.name, myInfo.avatar, true); count++;
 
                 if(result && result.userList) {
                     result.userList.forEach(user => {
                         if(user.userId === myInfo.uid) return;
                         const cached = onlineUsers[user.userId];
-                        const name = cached ? cached.name : `终端用户_${user.userId.substring(5,9)}`;
+                        const name = cached ? cached.name : `联邦成员_${user.userId.substring(5,9)}`;
                         const avatar = cached ? cached.avatar : "Ares";
-                        appendMemberItem(name, avatar);
+                        appendMemberItem(name, avatar, false);
                         count++;
                     });
                 }
@@ -413,40 +485,14 @@
             } catch (e) {}
         }
 
-        function appendMemberItem(name, avatarSeed) {
+        function appendMemberItem(name, avatarSeed, isMe) {
             const item = document.createElement('div');
             item.className = "flex items-center space-x-2 py-1 px-1.5 hover:bg-neutral-700/30 rounded cursor-pointer transition";
             item.innerHTML = `
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}" class="w-7 h-7 rounded-full bg-discord-darker">
-                <span class="text-xs text-gray-300 font-medium truncate">${escapeHTML(name)}</span>
+                <span class="text-xs text-neutral-300 font-medium truncate flex-1">${escapeHTML(name)} ${isMe ? '<span class="text-[9px] text-[#5865f2] font-bold">[本地]</span>':''}</span>
             `;
             document.getElementById('member-list').appendChild(item);
-        }
-
-        function renderMessage(msg) {
-            const container = document.getElementById('chat-messages');
-            const isImage = msg.type === "IMAGE";
-            const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const msgEl = document.createElement('div');
-            msgEl.className = "flex items-start space-x-3 text-sm animate-fade-in";
-            
-            let contentHTML = isImage 
-                ? `<img src="${msg.content}" class="mt-2 max-w-xs max-h-48 rounded border border-neutral-900 object-cover cursor-zoom-in" onclick="window.open('${msg.content}')">`
-                : `<p class="text-gray-300 select-text leading-relaxed break-all">${escapeHTML(msg.content)}</p>`;
-
-            msgEl.innerHTML = `
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${msg.senderAvatar}" class="w-10 h-10 rounded-full bg-discord-darker flex-shrink-0 mt-0.5">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-baseline space-x-2">
-                        <span class="font-medium text-white">${escapeHTML(msg.senderName)}</span>
-                        <span class="text-[10px] text-gray-500">${timeStr}</span>
-                    </div>
-                    ${contentHTML}
-                </div>
-            `;
-            container.appendChild(msgEl);
-            container.scrollTop = container.scrollHeight;
         }
 
         function updateVoiceUIRender() {
@@ -454,84 +500,66 @@
             if(myInfo.activeVoiceChannel === null) { container.innerHTML = ""; return; }
             container.innerHTML = "";
 
-            appendVoiceCard(myInfo.rtcUid || "local", myInfo.name, myInfo.avatar);
+            appendVoiceCard(myInfo.rtcUid || "local", myInfo.name, myInfo.avatar, isMuted);
 
             if(rtcClient) {
                 rtcClient.remoteUsers.forEach(user => {
-                    let name = `语音听众_${user.uid}`;
-                    let avatar = "Ares";
+                    let name = `终端听众_${user.uid}`; let avatar = "Ares"; let remoteMuted = false;
                     for (let id in onlineUsers) {
                         if (String(onlineUsers[id].rtcUid) === String(user.uid)) {
                             name = onlineUsers[id].name;
                             avatar = onlineUsers[id].avatar;
+                            remoteMuted = onlineUsers[id].isMuted;
                             break;
                         }
                     }
-                    appendVoiceCard(user.uid, name, avatar);
+                    appendVoiceCard(user.uid, name, avatar, remoteMuted);
                 });
             }
         }
 
-        function appendVoiceCard(rtcUid, name, avatarSeed) {
+        function appendVoiceCard(rtcUid, name, avatarSeed, mutedState) {
             const container = document.getElementById('panel-voice');
-            const card = document.createElement('div');
-            card.id = `v-card-${rtcUid}`;
+            const card = document.createElement('div'); card.id = `v-card-${rtcUid}`;
             card.className = "bg-discord-dark rounded-md flex flex-col items-center justify-center relative aspect-square border-4 border-transparent transition-all";
+            
+            // Discord 经典的右下角静音挂件
+            const muteBadgeHTML = mutedState ? `<div class="absolute bottom-2 right-2 bg-red-600 text-white rounded-full p-1 text-[10px] leading-none">🔇</div>` : '';
+
             card.innerHTML = `
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}" class="w-16 h-16 rounded-full mb-2 bg-discord-darker">
                 <div class="text-xs font-medium text-gray-200 text-center px-1 truncate w-full">${escapeHTML(name)}</div>
+                ${muteBadgeHTML}
             `;
             container.appendChild(card);
         }
 
-        // --- 7. 多媒体资产上传（控制150KB防溢出） ---
         document.getElementById('btn-trigger-image').addEventListener('click', () => document.getElementById('image-loader').click());
         document.getElementById('image-loader').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (!file) return;
-            if (file.size > 150 * 1024) {
-                alert("纯前端信令通道单次并发承载受限，请选择 150KB 以内的小图或动画表情包。");
-                return;
-            }
+            if (!file || file.size > 150 * 1024) return alert("为了信道传输畅通，请使用 150KB 内的小图资产。");
             const reader = new FileReader();
             reader.onload = function(evt) {
-                const messagePayload = {
-                    type: "IMAGE",
-                    channelId: activeTextChannel,
-                    senderName: myInfo.name,
-                    senderAvatar: myInfo.avatar,
-                    content: evt.target.result,
-                    timestamp: Date.now()
-                };
-                rtmClient.publish(activeTextChannel, JSON.stringify(messagePayload));
+                const messagePayload = { type: "IMAGE", msgId: "msg_"+Date.now(), channelId: activeTextChannel, senderName: myInfo.name, senderAvatar: myInfo.avatar, content: evt.target.result, timestamp: Date.now() };
+                if(rtmClient) rtmClient.publish(activeTextChannel, JSON.stringify(messagePayload)).catch(()=>{});
                 renderMessage(messagePayload);
             };
-            reader.readAsDataURL(file);
-            this.value = "";
+            reader.readAsDataURL(file); this.value = "";
         });
 
-        // --- 8. 全局控制链 ---
-        document.querySelectorAll('.channel-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const type = e.currentTarget.dataset.type;
-                const target = e.currentTarget.dataset.channel;
-
-                document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('bg-neutral-700/40', 'text-white'));
-                e.currentTarget.classList.add('bg-neutral-700/40', 'text-white');
-
-                if (type === 'text') switchTextChannel(target);
-                else if (type === 'voice') switchVoiceChannel(target);
-            });
-        });
+        function broadcastUserInfo() {
+            if(!rtmClient) return;
+            rtmClient.publish(activeTextChannel, JSON.stringify({ type: "IDENTITY", name: myInfo.name, avatar: myInfo.avatar, rtcUid: myInfo.rtcUid, voiceChannel: myInfo.activeVoiceChannel, isMuted: isMuted })).catch(()=>{});
+        }
 
         document.getElementById('btn-disconnect-voice').addEventListener('click', () => leaveCurrentVoiceChannel());
-
         document.getElementById('btn-toggle-mic').addEventListener('click', async () => {
-            isMuted = !isMuted;
+            isMuted = !isMuted; 
             if(localAudioTrack) await localAudioTrack.setMuted(isMuted);
-            const micBtn = document.getElementById('btn-toggle-mic');
-            micBtn.innerText = isMuted ? "🔇" : "🎙️";
-            micBtn.classList.toggle('text-red-500', isMuted);
+            document.getElementById('btn-toggle-mic').innerText = isMuted ? "🔇" : "🎙️";
+            document.getElementById('btn-toggle-mic').classList.toggle('text-red-500', isMuted);
+            broadcastUserInfo(); // 立刻全员广播同步静音图标
+            updateVoiceUIRender();
         });
 
         document.getElementById('btn-change-bg').addEventListener('click', () => {
@@ -541,13 +569,16 @@
             root.style.background = backgrounds[currentBgIdx].startsWith('linear') ? backgrounds[currentBgIdx] : '';
         });
 
-        setInterval(() => { if(rtmClient && myInfo.name) broadcastUserInfo(); }, 6000);
+        document.body.addEventListener('click', (e) => {
+            const btn = e.target.closest('.channel-item'); if (!btn) return;
+            const type = btn.dataset.type; const target = btn.dataset.channel;
+            document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('bg-neutral-700/40', 'text-white'));
+            btn.classList.add('bg-neutral-700/40', 'text-white');
+            if (type === 'text') switchTextChannel(target); else if (type === 'voice') switchVoiceChannel(target);
+        });
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-            }[tag] || tag));
-        }
+        setInterval(() => { if(rtmClient && myInfo.name) broadcastUserInfo(); }, 5000);
+        function escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
     </script>
 </body>
 </html>
