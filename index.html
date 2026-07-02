@@ -14,33 +14,35 @@
         .bg-jirai-main { background-color: #12121a; }
         .bg-jirai-input { background-color: #181822; }
         
-        /* 奢华地雷：霓虹冷艳流光 */
         .text-jirai-pink { color: #ff85a2; }
         .border-jirai-pink { border-color: #ff85a2; }
         .bg-jirai-pink { background-color: #ff85a2; }
         
+        /* 侧边栏抽屉移动端丝滑动画 */
+        .sidebar-drawer {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
         .server-icon { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); border: 1px solid #181822; }
         .server-icon:hover { border-radius: 14px !important; border-color: #ff85a2 !important; background-color: #ff85a2 !important; box-shadow: 0 0 15px #ff85a2; color: #000; }
         
-        .chat-row { transition: background-color 0.2s ease; }
+        .chat-row { transition: background-color 0.2s ease; position: relative; }
         .chat-row:hover { background-color: #161624; }
         .chat-row .msg-actions { opacity: 0; transition: opacity 0.15s ease; }
         .chat-row:hover .msg-actions { opacity: 1; }
         
         .is-speaking { border-color: #ff85a2 !important; box-shadow: 0 0 18px rgba(255, 133, 162, 0.8); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0c0c10; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
 
-        /* 放大状态卡片样式 */
         .video-card-expanded {
             grid-column: 1 / -1 !important;
             grid-row: span 2 !important;
             aspect-ratio: 16 / 9 !important;
             z-index: 30;
             border-color: #ff85a2 !important;
-            box-shadow: 0 0 25px rgba(255, 133, 162, 0.4);
         }
 
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
@@ -54,15 +56,15 @@
 <body class="select-none overflow-hidden font-sans antialiased text-xs sm:text-sm">
 
     <div id="login-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-jirai-dark p-8 rounded-2xl w-full max-w-md border border-jirai-pink/30 text-center shadow-2xl">
+        <div class="bg-jirai-dark p-6 sm:p-8 rounded-2xl w-full max-w-md border border-jirai-pink/30 text-center shadow-2xl">
             <div class="text-3xl mb-1 tracking-widest">🖤 𝔍𝔦𝔯𝔞𝔦 𝔎𝔢𝔦 🖤</div>
-            <h2 class="text-base font-bold mb-1 text-white">地雷物语 · 终极修复大厅</h2>
-            <p class="text-[10px] text-jirai-pink mb-6 tracking-widest uppercase">Async-Locker Stream Verified</p>
+            <h2 class="text-base font-bold mb-1 text-white">地雷物语 · 跨端全自适应服</h2>
+            <p class="text-[9px] text-jirai-pink mb-6 tracking-widest uppercase">Mobile Layout & Camera Swap Fixed</p>
             
-            <label class="block text-left text-[11px] font-bold text-gray-500 uppercase mb-2 tracking-wide">契约名号 🎀</label>
-            <input type="text" id="username-input" maxlength="12" placeholder="输入临时花名..." class="w-full p-2.5 bg-jirai-blacker rounded-xl focus:outline-none focus:ring-1 focus:ring-jirai-pink mb-6 text-white border border-neutral-800 text-sm">
+            <label class="block text-left text-[11px] font-bold text-gray-500 uppercase mb-2 tracking-wide">您的昵称 🎀</label>
+            <input type="text" id="username-input" maxlength="12" placeholder="输入进入结界的称呼..." class="w-full p-2.5 bg-jirai-blacker rounded-xl focus:outline-none focus:ring-1 focus:ring-jirai-pink mb-6 text-white border border-neutral-800 text-sm">
             
-            <label class="block text-left text-[11px] font-bold text-gray-500 uppercase mb-2 tracking-wide">暗黑萌偶头像 🖤</label>
+            <label class="block text-left text-[11px] font-bold text-gray-500 uppercase mb-2 tracking-wide">暗黑萌偶 🖤</label>
             <div class="flex justify-between mb-8 px-2" id="avatar-selector">
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Ares" class="avatar-option w-12 h-12 rounded-full cursor-pointer border-2 border-transparent bg-jirai-blacker transition hover:scale-105" data-avatar="Ares">
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Zeus" class="avatar-option w-12 h-12 rounded-full cursor-pointer border-2 border-transparent bg-jirai-blacker transition hover:scale-105" data-avatar="Zeus">
@@ -70,77 +72,75 @@
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Poseidon" class="avatar-option w-12 h-12 rounded-full cursor-pointer border-2 border-transparent bg-jirai-blacker transition hover:scale-105" data-avatar="Poseidon">
             </div>
             
-            <button id="btn-enter" class="w-full bg-jirai-pink hover:bg-pink-400 text-black font-extrabold py-2.5 rounded-xl text-sm transition-all shadow-md tracking-widest">签订契约 🖤</button>
+            <button id="btn-enter" class="w-full bg-jirai-pink hover:bg-pink-400 text-black font-extrabold py-2.5 rounded-xl text-sm transition-all shadow-md tracking-widest">缔结契约 🖤</button>
         </div>
     </div>
 
-    <div id="app-root" class="flex h-screen w-screen bg-jirai-main transition-all duration-500">
+    <div id="app-root" class="flex h-screen w-screen bg-jirai-main transition-all duration-500 relative">
         
-        <div class="w-16 bg-jirai-blacker flex flex-col items-center py-3 space-y-3 flex-shrink-0 z-20 border-r border-jirai-pink/5">
-            <div class="server-icon w-11 h-11 bg-jirai-dark rounded-[22px] flex items-center justify-center cursor-pointer text-jirai-pink font-extrabold text-base shadow">
-                🖤
-            </div>
-            <div class="w-6 h-[1px] bg-neutral-900 rounded"></div>
-            <button id="btn-change-bg" class="server-icon w-11 h-11 bg-jirai-input rounded-[22px] flex items-center justify-center cursor-pointer text-base" title="切换空间主题画布">
-                🔮
-            </button>
-        </div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden"></div>
 
-        <div class="w-56 bg-jirai-dark flex flex-col justify-between flex-shrink-0 z-10 border-r border-jirai-pink/5">
-            <div class="flex-1 overflow-y-auto custom-scrollbar">
-                <div class="h-12 border-b border-jirai-blacker flex items-center px-4 font-bold text-jirai-pink tracking-wider shadow-sm">
-                    真言结界大厅 🩰
-                </div>
-                
-                <div class="p-2 space-y-4">
-                    <div>
-                        <div class="text-[10px] font-bold text-neutral-500 px-2 mb-1 uppercase tracking-wider">文字互动频道</div>
-                        <div class="space-y-0.5" id="text-channels-list">
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-jirai-pink bg-jirai-pink/10 border border-jirai-pink/10 cursor-pointer text-sm font-medium transition" data-type="text" data-channel="chat-lobby">
-                                <span class="mr-2 text-neutral-600 font-bold">#</span> <span>日常倾诉大厅</span>
-                            </div>
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="text" data-channel="announcements">
-                                <span class="mr-2 text-neutral-600 font-bold">#</span> <span>真言置顶榜</span>
+        <div id="sidebar-wrapper" class="sidebar-drawer fixed lg:static inset-y-0 left-0 flex z-40 transform -translate-x-full lg:translate-x-0 flex-shrink-0">
+            <div class="w-16 bg-jirai-blacker flex flex-col items-center py-3 space-y-3 flex-shrink-0 border-r border-jirai-pink/5">
+                <div class="server-icon w-11 h-11 bg-jirai-dark rounded-[22px] flex items-center justify-center cursor-pointer text-jirai-pink font-extrabold text-base shadow">🖤</div>
+                <div class="w-6 h-[1px] bg-neutral-900 rounded"></div>
+                <button id="btn-change-bg" class="server-icon w-11 h-11 bg-jirai-input rounded-[22px] flex items-center justify-center cursor-pointer text-base">🔮</button>
+            </div>
+
+            <div class="w-52 bg-jirai-dark flex flex-col justify-between flex-shrink-0 border-r border-jirai-pink/5">
+                <div class="flex-1 overflow-y-auto custom-scrollbar">
+                    <div class="h-12 border-b border-jirai-blacker flex items-center px-4 font-bold text-jirai-pink tracking-wider">真言联邦域 🩰</div>
+                    <div class="p-2 space-y-4">
+                        <div>
+                            <div class="text-[10px] font-bold text-neutral-500 px-2 mb-1 uppercase tracking-wider">文字互动频道</div>
+                            <div class="space-y-0.5" id="text-channels-list">
+                                <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-jirai-pink bg-jirai-pink/10 border border-jirai-pink/10 cursor-pointer text-sm font-medium transition" data-type="text" data-channel="chat-lobby">
+                                    <span class="mr-2 text-neutral-600 font-bold">#</span> <span>沉沦物语中心</span>
+                                </div>
+                                <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="text" data-channel="announcements">
+                                    <span class="mr-2 text-neutral-600 font-bold">#</span> <span>契约置顶榜</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div>
-                        <div class="text-[10px] font-bold text-neutral-500 px-2 mb-1 uppercase tracking-wider">多媒体语音大厅</div>
-                        <div class="space-y-0.5" id="voice-channels-list">
-                            <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="voice" data-channel="voice-lobby">
-                                <span class="mr-2">🔮</span> <span>千重夜话语音间</span>
+                        <div>
+                            <div class="text-[10px] font-bold text-neutral-500 px-2 mb-1 uppercase tracking-wider">多媒体语音大厅</div>
+                            <div class="space-y-0.5" id="voice-channels-list">
+                                <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="voice" data-channel="voice-lobby">
+                                    <span class="mr-2">🔮</span> <span>千重夜话连线</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="h-14 bg-jirai-blacker flex items-center justify-between px-2 flex-shrink-0 border-t border-jirai-pink/5">
-                <div class="flex items-center space-x-1.5 overflow-hidden cursor-pointer group" id="user-profile-trigger" title="点击更改个签">
-                    <img id="my-avatar" src="" class="w-8 h-8 rounded-full bg-neutral-800 border border-jirai-pink/20">
-                    <div class="text-xs font-semibold truncate max-w-[90px]">
-                        <p id="my-name" class="text-white truncate leading-tight"></p>
-                        <span id="my-status-text" class="text-neutral-500 text-[9px] block leading-none mt-0.5 truncate">🎀 点击设置签名...</span>
+                <div class="h-14 bg-jirai-blacker flex items-center justify-between px-2 flex-shrink-0 border-t border-jirai-pink/5">
+                    <div class="flex items-center space-x-1.5 overflow-hidden cursor-pointer group" id="user-profile-trigger">
+                        <img id="my-avatar" src="" class="w-8 h-8 rounded-full bg-neutral-800 border border-jirai-pink/20">
+                        <div class="text-xs font-semibold truncate max-w-[80px]">
+                            <p id="my-name" class="text-white truncate leading-tight"></p>
+                            <span id="my-status-text" class="text-neutral-500 text-[9px] block leading-none mt-0.5 truncate">🎀 设置签名...</span>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <button id="btn-toggle-mic" class="p-2 hover:bg-jirai-main hover:text-jirai-pink rounded-xl transition text-sm">🎙️</button>
-                    <button id="btn-disconnect-voice" class="p-2 bg-red-950/40 text-red-400 hover:bg-red-900 border border-red-500/10 rounded-xl hidden transition text-sm">❌</button>
+                    <div class="flex items-center space-x-1">
+                        <button id="btn-toggle-mic" class="p-2 hover:bg-jirai-main hover:text-jirai-pink rounded-xl transition text-sm">🎙️</button>
+                        <button id="btn-disconnect-voice" class="p-2 bg-red-950/40 text-red-400 hover:bg-red-900 border border-red-500/10 rounded-xl hidden transition text-sm">❌</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="flex-1 flex flex-col min-w-0 bg-transparent relative">
             <div class="h-12 border-b border-jirai-blacker flex items-center justify-between px-4 font-bold text-white shadow-sm flex-shrink-0 z-10 bg-jirai-dark/70 backdrop-blur-md">
-                <div class="flex items-center space-x-2" id="room-title">
-                    <span class="text-jirai-pink text-xl">#</span> <span>日常倾诉大厅</span>
+                <div class="flex items-center space-x-3">
+                    <button id="btn-trigger-sidebar" class="block lg:hidden text-jirai-pink text-xl hover:text-white transition p-1">☰</button>
+                    <div class="flex items-center space-x-2" id="room-title">
+                        <span class="text-jirai-pink text-xl">#</span> <span>沉沦物语中心</span>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div id="pinned-banner" class="hidden text-xs bg-jirai-pink/5 border border-jirai-pink/20 rounded-xl px-3 py-1 text-jirai-pink max-w-xs truncate">
-                        📌 置顶: <span id="pinned-text">暂无消息</span>
+                    <div id="pinned-banner" class="hidden text-xs bg-jirai-pink/5 border border-jirai-pink/20 rounded-xl px-2.5 py-1 text-jirai-pink max-w-[140px] sm:max-w-xs truncate">
+                        📌 <b>置顶:</b> <span id="pinned-text">暂无消息</span>
                     </div>
-                    <span id="voice-status-pill" class="text-[9px] bg-jirai-pink/10 text-jirai-pink px-2 py-0.5 rounded border border-jirai-pink/20 hidden font-bold tracking-widest">RTC STREAM ON</span>
+                    <span id="voice-status-pill" class="text-[9px] bg-jirai-pink/10 text-jirai-pink px-2 py-0.5 rounded border border-jirai-pink/20 hidden font-bold tracking-widest">RTC ON</span>
                 </div>
             </div>
             
@@ -148,27 +148,26 @@
                 <div id="panel-chat" class="flex-1 flex flex-col min-w-0 bg-transparent">
                     <div id="chat-messages" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4 bg-jirai-main/10"></div>
                     <div id="typing-indicator" class="px-4 h-5 text-xs text-neutral-500 hidden items-center space-x-1">
-                        <span id="typing-text" class="font-medium text-jirai-pink"></span> <span class="text-[10px]">正在敲击键盘...</span>
+                        <span id="typing-text" class="font-medium text-jirai-pink"></span> <span class="text-[10px]">正在轻微敲字...</span>
                         <div class="flex space-x-0.5 items-center pt-0.5"><span class="w-1 h-1 bg-jirai-pink rounded-full dot-blink"></span><span class="w-1 h-1 bg-jirai-pink rounded-full dot-blink"></span><span class="w-1 h-1 bg-jirai-pink rounded-full dot-blink"></span></div>
                     </div>
                     <div class="px-4 pb-6 pt-1 flex-shrink-0">
                         <div class="bg-jirai-input rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-md border border-jirai-pink/5 focus-within:border-jirai-pink/20 transition-all duration-300">
                             <button id="btn-trigger-image" class="text-neutral-400 hover:text-jirai-pink transition text-base">➕</button>
-                            <input type="text" id="chat-input" placeholder="输入消息后敲击回车..." class="flex-1 bg-transparent text-sm focus:outline-none text-neutral-100 placeholder-neutral-600" autocomplete="off">
+                            <input type="text" id="chat-input" placeholder="诉说心愿..." class="flex-1 bg-transparent text-sm focus:outline-none text-neutral-100 placeholder-neutral-600" autocomplete="off">
                         </div>
                     </div>
                 </div>
 
-                <div id="panel-voice" class="flex-1 p-4 flex flex-col hidden bg-black/20">
-                    <div class="mb-4 p-2 bg-jirai-dark border border-jirai-pink/10 rounded-xl flex items-center justify-center space-x-4 flex-shrink-0">
-                        <button id="btn-toggle-video" class="px-4 py-1.5 bg-jirai-input hover:bg-jirai-pink hover:text-black rounded-lg border border-jirai-pink/20 transition flex items-center space-x-1 text-xs"><span>📷</span> <span>本地视讯</span></button>
-                        <button id="btn-toggle-screen" class="px-4 py-1.5 bg-jirai-input hover:bg-jirai-pink hover:text-black rounded-lg border border-jirai-pink/20 transition flex items-center space-x-1 text-xs"><span>🖥️</span> <span>共享屏幕</span></button>
-                        <span class="text-[10px] text-neutral-500 hidden sm:inline">💡 点击下方用户视频窗口可放大/缩小查看</span>
+                <div id="panel-voice" class="flex-1 p-3 sm:p-4 flex flex-col hidden bg-black/20">
+                    <div class="mb-3 p-2 bg-jirai-dark border border-jirai-pink/10 rounded-xl flex items-center justify-around sm:justify-center space-x-2 sm:space-x-4 flex-shrink-0">
+                        <button id="btn-toggle-video" class="px-3 py-1.5 bg-jirai-input hover:bg-jirai-pink hover:text-black rounded-lg border border-jirai-pink/10 transition flex items-center space-x-1 text-xs"><span>📷</span> <span id="video-btn-text">开启视讯</span></button>
+                        <button id="btn-toggle-screen" class="px-3 py-1.5 bg-jirai-input hover:bg-jirai-pink hover:text-black rounded-lg border border-jirai-pink/10 transition flex items-center space-x-1 text-xs"><span>🖥️</span> <span id="screen-btn-text">共享屏幕</span></button>
                     </div>
-                    <div id="voice-grid" class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar"></div>
+                    <div id="voice-grid" class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto custom-scrollbar"></div>
                 </div>
 
-                <div class="w-52 bg-jirai-dark flex flex-col border-l border-jirai-blacker hidden lg:flex flex-shrink-0">
+                <div class="w-48 bg-jirai-dark flex flex-col border-l border-jirai-blacker hidden lg:flex flex-shrink-0">
                     <div class="p-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider border-b border-jirai-blacker">现世缔约者 — <span id="member-count" class="text-jirai-pink">1</span></div>
                     <div id="member-list" class="flex-1 overflow-y-auto custom-scrollbar px-2 pt-2 space-y-0.5"></div>
                 </div>
@@ -184,13 +183,14 @@
         let rtcClient = null;
         let rtmClient = null;
         let isPublishingLock = false;
-        let isRtmReady = false; // 🛑 核心修复：添加 RTM 登录就绪锁
+        let isRtmReady = false;
         
         let localTracks = { audioTrack: null, videoTrack: null, screenTrack: null };
-        let myInfo = { uid: "", name: "", avatar: "Ares", activeVoiceChannel: null, rtcUid: null, statusText: "🎀 处于混沌极点" };
+        let myInfo = { uid: "", name: "", avatar: "Ares", activeVoiceChannel: null, rtcUid: null, statusText: "🎀 处于混沌维度" };
         let onlineUsers = {};
         let activeTextChannel = "chat-lobby";
         let isMuted = false, isCameraOn = false, isScreenSharing = false;
+        let currentCameraFacing = "user"; // 手机默认前置 "user", 后置 "environment"
         let typingTimeout = null;
 
         const backgrounds = [
@@ -199,10 +199,27 @@
         ];
         let currentBgIdx = 0;
 
-        // 苹果设备检测（用于处理 iOS 屏幕共享不支持的硬件锁）
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // 智能侦测是否为移动端手机设备
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // 登录控制
+        // --- 手机端侧边栏滑动收缩控制中心 ---
+        const btnSidebar = document.getElementById('btn-trigger-sidebar');
+        const sidebarWrapper = document.getElementById('sidebar-wrapper');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebarDrawer(show) {
+            if (show) {
+                sidebarWrapper.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            } else {
+                sidebarWrapper.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+        btnSidebar.addEventListener('click', () => toggleSidebarDrawer(true));
+        sidebarOverlay.addEventListener('click', () => toggleSidebarDrawer(false));
+
+        // 登录及契约
         let selectedSeed = "Ares";
         document.querySelectorAll('.avatar-option').forEach(el => {
             el.addEventListener('click', (e) => {
@@ -215,7 +232,7 @@
 
         document.getElementById('btn-enter').addEventListener('click', async () => {
             const name = document.getElementById('username-input').value.trim();
-            if(!name) return alert("请赐予契约一个真实的名号！");
+            if(!name) return alert("请指定进入所需的临时名号！");
             if (typeof AgoraRTC !== "undefined") { AgoraRTC.getDevices(); }
 
             myInfo.uid = "user_" + Math.floor(Math.random() * 899999 + 100000);
@@ -226,14 +243,12 @@
             document.getElementById('my-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${selectedSeed}`;
             document.getElementById('login-overlay').classList.add('hidden');
 
-            // 🛑 核心时序修复：全面使用 Await 串行保障逻辑，防止 RTM 登录前切换频道导致消息盲区
             await initAgoraServices();
             await switchTextChannel("chat-lobby");
             
-            // 苹果手机端隐藏屏幕共享按钮，避免调用报错
-            if (isIOS) {
-                const screenBtn = document.getElementById('btn-toggle-screen');
-                if(screenBtn) screenBtn.style.display = 'none';
+            // 🛑 核心修复：如果检测到是手机端，将屏幕共享变更为更为实用的“切换前后摄像头”功能，杜绝调用报错
+            if (isMobileDevice) {
+                document.getElementById('screen-btn-text').innerText = "翻转镜头";
             }
         });
 
@@ -264,7 +279,6 @@
                     });
                 });
 
-                // 串行等待 RTM 登录完成并解锁 RtmReady
                 rtmClient = new AgoraRTM.RTM(APP_ID, myInfo.uid);
                 await rtmClient.login();
                 isRtmReady = true;
@@ -272,11 +286,10 @@
                 rtmClient.addEventListener("message", (event) => { handleIncomingRTMEvent(event); });
                 rtmClient.addEventListener("presence", () => { refreshOnlineMemberList(); });
             } catch (err) {
-                console.error("多媒体总线装载失败:", err);
+                console.error("多媒体核心挂载失败:", err);
             }
         }
 
-        // 彻底修复回车发送逻辑
         const chatInput = document.getElementById('chat-input');
         chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -294,12 +307,11 @@
             const msgId = "msg_" + Date.now();
             const payload = { type: "TEXT", msgId, channelId: activeTextChannel, senderUid: myInfo.uid, senderName: myInfo.name, senderAvatar: myInfo.avatar, content, timestamp: Date.now() };
 
-            renderMessage(payload); // 本地无条件抢先回显
+            renderMessage(payload);
             chatInput.value = ""; chatInput.focus();
 
-            // 🛑 核心安全策略修复：只有在就绪状态下才在远端广播，防止阻塞卡住输入框
             if(isRtmReady && rtmClient) {
-                try { await rtmClient.publish(activeTextChannel, JSON.stringify(payload)); } catch (e){ console.warn("RTM广播吞吐越界被捕获"); }
+                try { await rtmClient.publish(activeTextChannel, JSON.stringify(payload)); } catch (e){}
             }
             isPublishingLock = false;
         }
@@ -309,7 +321,7 @@
         });
 
         document.getElementById('user-profile-trigger').addEventListener('click', () => {
-            const newStatus = prompt("修改今天的新是个签:", myInfo.statusText);
+            const newStatus = prompt("修改个签签名:", myInfo.statusText);
             if(newStatus !== null) {
                 myInfo.statusText = newStatus.trim() || "🎀 保持沉沦";
                 document.getElementById('my-status-text').innerText = myInfo.statusText;
@@ -334,6 +346,10 @@
                     document.getElementById('pinned-text').innerText = data.content;
                     document.getElementById('pinned-banner').classList.remove('hidden'); return;
                 }
+                // 监听全服同步的 Reaction 表情回应
+                if (data.type === "REACTION" && data.channelId === activeTextChannel) {
+                    executeLocalReactionAppend(data.targetMsgId, data.emoji); return;
+                }
                 if (data.channelId === activeTextChannel && event.publisher !== myInfo.uid) {
                     renderMessage(data);
                 }
@@ -357,8 +373,11 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-baseline space-x-2"><span class="font-semibold text-white">${escapeHTML(msg.senderName)}</span><span class="text-[10px] text-neutral-500">${timeStr}</span></div>
                     ${contentHTML}
+                    <div class="reaction-box flex items-center space-x-1 mt-1.5 flex-wrap gap-1"></div>
                 </div>
-                <div class="msg-actions absolute right-4 top-2 bg-jirai-blacker border border-jirai-pink/10 rounded-lg flex text-xs overflow-hidden">
+                <div class="msg-actions absolute right-4 top-2 bg-jirai-blacker border border-jirai-pink/10 rounded-lg flex text-xs overflow-hidden z-10 shadow-lg">
+                    <button class="px-2 py-1 hover:bg-jirai-pink hover:text-black text-neutral-400" onclick="sendReaction('${row.id}', '🖤')">🖤</button>
+                    <button class="px-2 py-1 hover:bg-jirai-pink hover:text-black text-neutral-400" onclick="sendReaction('${row.id}', '🎀')">🎀</button>
                     <button class="px-2 py-1 hover:bg-jirai-pink hover:text-black text-neutral-400" onclick="pinThisMessage('${row.id}')">📌</button>
                     ${msg.senderUid === myInfo.uid ? `<button class="px-2 py-1 hover:bg-red-600 hover:text-white text-neutral-400" onclick="deleteMyMessage('${row.id}')">🗑️</button>` : ''}
                 </div>
@@ -366,9 +385,31 @@
             container.appendChild(row); container.scrollTop = container.scrollHeight;
         }
 
+        // Discord 经典功能：表情包回应发送
+        function sendReaction(msgId, emoji) {
+            executeLocalReactionAppend(msgId, emoji);
+            if(isRtmReady) { rtmClient.publish(activeTextChannel, JSON.stringify({ type: "REACTION", channelId: activeTextChannel, targetMsgId: msgId, emoji: emoji })).catch(()=>{}); }
+        }
+
+        function executeLocalReactionAppend(msgId, emoji) {
+            const row = document.getElementById(msgId); if(!row) return;
+            const box = row.querySelector('.reaction-box');
+            let existingPill = box.querySelector(`[data-emoji="${emoji}"]`);
+            if(existingPill) {
+                let countEl = existingPill.querySelector('.count');
+                countEl.innerText = parseInt(countEl.innerText) + 1;
+            } else {
+                const pill = document.createElement('div');
+                pill.dataset.emoji = emoji;
+                pill.className = "bg-jirai-input border border-jirai-pink/20 rounded-md px-1.5 py-0.5 text-[10px] text-jirai-pink flex items-center space-x-1 font-bold animate-pulse";
+                pill.innerHTML = `<span>${emoji}</span><span class="count">1</span>`;
+                box.appendChild(pill);
+            }
+        }
+
         function pinThisMessage(msgId) {
             const row = document.getElementById(msgId); if(!row) return;
-            const text = row.querySelector('p') ? row.querySelector('p').innerText : '[媒体数据附件]';
+            const text = row.querySelector('p') ? row.querySelector('p').innerText : '[附件媒体数据]';
             document.getElementById('pinned-text').innerText = text;
             document.getElementById('pinned-banner').classList.remove('hidden');
             if(isRtmReady) rtmClient.publish(activeTextChannel, JSON.stringify({ type: "PIN_MSG", channelId: activeTextChannel, content: text })).catch(()=>{});
@@ -386,6 +427,7 @@
         }
 
         async function switchTextChannel(channelId) {
+            toggleSidebarDrawer(false); // 🛑 手机端优化：点击文字频道后自动收起侧边抽屉栏
             if(activeTextChannel && isRtmReady) { try { await rtmClient.unsubscribe(activeTextChannel); } catch(e){} }
             activeTextChannel = channelId; document.getElementById('chat-messages').innerHTML = "";
             document.getElementById('pinned-banner').classList.add('hidden');
@@ -396,6 +438,7 @@
         }
 
         async function switchVoiceChannel(channelId) {
+            toggleSidebarDrawer(false); // 🛑 手机端优化：点击语音频道后自动收起侧边抽屉栏
             if(myInfo.activeVoiceChannel === channelId) return;
             await leaveCurrentVoiceChannel();
             myInfo.activeVoiceChannel = channelId;
@@ -422,18 +465,19 @@
             updateVoiceUIRender(); switchTextChannel("chat-lobby");
         }
 
-        // 📷 本地相机视频流控制
+        // 相机流开启
         async function toggleCameraStream() {
             if(!myInfo.activeVoiceChannel) return;
             if(!isCameraOn) {
                 try {
-                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                    // 挂载当前面向模式 (user为前置)
+                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({ facingMode: currentCameraFacing });
                     await rtcClient.publish(localTracks.videoTrack);
                     isCameraOn = true;
                     document.getElementById('btn-toggle-video').classList.add('bg-pink-500', 'text-black');
                     const localVideoBox = document.getElementById(`video-slot-local`);
                     if(localVideoBox) { localVideoBox.innerHTML = ""; localTracks.videoTrack.play(localVideoBox); }
-                } catch(e) { alert("调取相机失败，请确认 HTTPS 授权情况！"); }
+                } catch(e) { alert("调取本地相机资产异常，请核对权限！"); }
             } else {
                 if(localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); await rtcClient.unpublish(localTracks.videoTrack); localTracks.videoTrack = null; }
                 isCameraOn = false; document.getElementById('btn-toggle-video').classList.remove('bg-pink-500', 'text-black');
@@ -441,9 +485,24 @@
             }
         }
 
-        // 🖥️ 屏幕共享流控制 (iOS 环境下不会触发)
+        // 🖥️ 屏幕共享轴控制 (移动设备手机端无缝重映射为“切换前后摄像头”功能)
         async function toggleScreenStream() {
             if(!myInfo.activeVoiceChannel) return;
+            
+            if (isMobileDevice) {
+                // 手机端翻转镜头修复
+                if(!isCameraOn) return alert("请先开启视讯通话，然后再执行翻转镜头操作！");
+                currentCameraFacing = (currentCameraFacing === "user") ? "environment" : "user";
+                // 关掉重建音画轨
+                if(localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); await rtcClient.unpublish(localTracks.videoTrack); }
+                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({ facingMode: currentCameraFacing });
+                await rtcClient.publish(localTracks.videoTrack);
+                const localVideoBox = document.getElementById(`video-slot-local`);
+                if(localVideoBox) { localVideoBox.innerHTML = ""; localTracks.videoTrack.play(localVideoBox); }
+                return;
+            }
+
+            // PC端正常的屏幕共享
             if(!isScreenSharing) {
                 try {
                     localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({ encoderConfig: "1080p_1" });
@@ -453,7 +512,7 @@
                     const localVideoBox = document.getElementById(`video-slot-local`);
                     if(localVideoBox) { localVideoBox.innerHTML = ""; localTracks.screenTrack.play(localVideoBox); }
                     localTracks.screenTrack.on("track-ended", () => { toggleScreenStream(); });
-                } catch(e) { console.warn("屏幕共享取消"); }
+                } catch(e) { console.warn("屏幕捕捉中断"); }
             } else {
                 if(localTracks.screenTrack) { localTracks.screenTrack.stop(); localTracks.screenTrack.close(); await rtcClient.unpublish(localTracks.screenTrack); localTracks.screenTrack = null; }
                 isScreenSharing = false; document.getElementById('btn-toggle-screen').classList.remove('bg-pink-500', 'text-black');
@@ -475,7 +534,7 @@
                     result.userList.forEach(user => {
                         if(user.userId === myInfo.uid) return;
                         const cached = onlineUsers[user.userId];
-                        appendMemberItem(cached ? cached.name : `成员_${user.userId.substring(5,9)}`, cached ? cached.avatar : "Ares", cached ? cached.statusText : "🎀 正在观测深渊", false); count++;
+                        appendMemberItem(cached ? cached.name : `成员_${user.userId.substring(5,9)}`, cached ? cached.avatar : "Ares", cached ? cached.statusText : "🎀 处于未知空间", false); count++;
                     });
                 }
                 document.getElementById('member-count').innerText = count;
@@ -483,13 +542,16 @@
         }
 
         function appendMemberItem(name, avatarSeed, status, isMe) {
+            const listContainer = document.getElementById('member-list');
+            if(!listContainer) return;
             const item = document.createElement('div'); item.className = "flex flex-col p-1.5 hover:bg-jirai-pink/5 rounded-xl cursor-pointer transition";
             item.innerHTML = `<div class="flex items-center space-x-2"><img src="https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}" class="w-6 h-6 rounded-full bg-jirai-blacker"><span class="text-xs text-neutral-300 font-medium truncate flex-1">${escapeHTML(name)} ${isMe ? '<span class="text-jirai-pink font-bold text-[9px]">[我]</span>':''}</span></div><div class="text-[9px] text-neutral-600 pl-8 truncate">${escapeHTML(status)}</div>`;
-            document.getElementById('member-list').appendChild(item);
+            listContainer.appendChild(item);
         }
 
         function updateVoiceUIRender() {
             const container = document.getElementById('voice-grid');
+            if(!container) return;
             if(myInfo.activeVoiceChannel === null) { container.innerHTML = ""; return; }
             container.innerHTML = "";
 
@@ -515,10 +577,8 @@
             const card = document.createElement('div'); card.id = `v-card-${rtcUid}`;
             card.className = "bg-jirai-dark rounded-2xl flex flex-col items-center justify-center relative aspect-video border border-neutral-950 overflow-hidden shadow-md cursor-pointer transition-all duration-300";
             
-            // 🛑 核心升级：为语音卡片添加点击放大切换功能
-            card.addEventListener('click', () => {
-                card.classList.toggle('video-card-expanded');
-            });
+            // 点击放大/缩小切换
+            card.addEventListener('click', () => { card.classList.toggle('video-card-expanded'); });
 
             const videoSlotId = isMe ? "video-slot-local" : `video-slot-${rtcUid}`;
             const muteBadgeHTML = mutedState ? `<div class="absolute bottom-2 right-2 bg-pink-600 text-white rounded-full px-2 py-0.5 text-[9px] leading-none z-10">已静音</div>` : '';
@@ -535,7 +595,7 @@
 
         document.getElementById('btn-trigger-image').addEventListener('click', () => document.getElementById('image-loader').click());
         document.getElementById('image-loader').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if (!file || file.size > 150 * 1024) return alert("为了大厅传输顺畅，请发送 150KB 内的小图资产。");
+            const file = e.target.files[0]; if (!file || file.size > 150 * 1024) return alert("请维持素材在 150KB 以内传输！");
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const payload = { type: "IMAGE", msgId: "msg_"+Date.now(), channelId: activeTextChannel, senderUid: myInfo.uid, senderName: myInfo.name, senderAvatar: myInfo.avatar, content: evt.target.result, timestamp: Date.now() };
@@ -569,7 +629,7 @@
         document.body.addEventListener('click', (e) => {
             const btn = e.target.closest('.channel-item'); if (!btn) return;
             const type = btn.dataset.type; const target = btn.dataset.channel;
-            document.querySelectorAll('.channel-item').forEach(i => i.className = "channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition");
+            document.querySelectorAll('.channel-item').forEach(i = i.className = "channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition");
             btn.className = "channel-item flex items-center px-2 py-1.5 rounded-xl text-jirai-pink bg-jirai-pink/10 border border-jirai-pink/10 cursor-pointer text-sm font-medium transition";
             if (type === 'text') switchTextChannel(target); else if (type === 'voice') switchVoiceChannel(target);
         });
