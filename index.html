@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Discord Jirai-Kei Sovereign Edition</title>
+    <title>Discord Jirai-Kei Perfection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.21.0.js"></script>
     <script src="https://download.agora.io/sdk/release/agora-rtm-2.2.0.js"></script>
@@ -19,13 +19,12 @@
         .bg-jirai-pink { background-color: #ff85a2; }
         
         /* 侧边栏抽屉移动端自适应平滑动画 */
-        .sidebar-drawer { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-drawer { transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1); }
         
         /* Discord 经典图标圆角拟真悬停 */
         .server-icon { transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); border: 1px solid #161622; }
         .server-icon:hover { border-radius: 14px !important; border-color: #ff85a2 !important; background-color: #ff85a2 !important; box-shadow: 0 0 15px #ff85a2; color: #000; }
         
-        /* 聊天行悬停高亮 */
         .chat-row { transition: background-color 0.15s ease; position: relative; }
         .chat-row:hover { background-color: #151522; }
         .chat-row .msg-actions { opacity: 0; transition: opacity 0.1s ease; }
@@ -34,12 +33,10 @@
         /* 说话时粉红霓虹光晕 */
         .is-speaking { border-color: #ff85a2 !important; box-shadow: 0 0 18px rgba(255, 133, 162, 0.8) !important; }
         
-        /* 细腻蕾丝自定义滚动条 */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0b0b0f; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
 
-        /* 卡片多媒体放大器 */
         .video-card-expanded {
             grid-column: 1 / -1 !important;
             grid-row: span 2 !important;
@@ -62,8 +59,8 @@
     <div id="login-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-jirai-dark p-6 sm:p-8 rounded-2xl w-full max-w-md border border-jirai-pink/30 text-center shadow-2xl">
             <div class="text-3xl mb-1 tracking-widest">🖤 𝔍𝔦𝔯𝔞𝔦 𝔎𝔢𝔦 🖤</div>
-            <h2 class="text-base font-bold mb-1 text-white">地雷物语 · 像素重构结界</h2>
-            <p class="text-[9px] text-jirai-pink mb-6 tracking-widest uppercase">Global Event Locker Bug Fixed</p>
+            <h2 class="text-base font-bold mb-1 text-white">地雷物语 · 空间自适应大厅</h2>
+            <p class="text-[9px] text-jirai-pink mb-6 tracking-widest uppercase">Swipe Handlers & Overlay Fixed</p>
             
             <label class="block text-left text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wide">您的专属名号 🎀</label>
             <input type="text" id="username-input" maxlength="12" placeholder="输入进入结界的花名..." class="w-full p-2.5 bg-jirai-blacker rounded-xl focus:outline-none focus:ring-1 focus:ring-jirai-pink mb-6 text-white border border-neutral-800 text-sm">
@@ -76,13 +73,13 @@
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Poseidon" class="avatar-option w-12 h-12 rounded-full cursor-pointer border-2 border-transparent bg-jirai-blacker transition hover:scale-105" data-avatar="Poseidon">
             </div>
             
-            <button id="btn-enter" class="w-full bg-jirai-pink hover:bg-pink-400 text-black font-extrabold py-2.5 rounded-xl text-sm transition-all shadow-md tracking-widest">连通世界线 🖤</button>
+            <button id="btn-enter" class="w-full bg-jirai-pink hover:bg-pink-400 text-black font-extrabold py-2.5 rounded-xl text-sm transition-all shadow-md tracking-widest">连通结界 🖤</button>
         </div>
     </div>
 
     <div id="app-root" class="flex h-screen w-screen bg-jirai-main overflow-hidden relative">
         
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden transition-opacity"></div>
 
         <div id="sidebar-wrapper" class="sidebar-drawer fixed lg:static inset-y-0 left-0 flex z-40 transform -translate-x-full lg:translate-x-0 flex-shrink-0">
             <div class="w-16 bg-jirai-blacker flex flex-col items-center py-3 space-y-3 flex-shrink-0 border-r border-jirai-pink/5">
@@ -132,16 +129,16 @@
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col min-w-0 bg-transparent relative">
+        <div class="flex-1 flex flex-col min-w-0 bg-transparent relative" id="main-content-zone">
             <div class="h-12 border-b border-jirai-blacker flex items-center justify-between px-4 font-bold text-white shadow-sm flex-shrink-0 z-10 bg-jirai-dark/70 backdrop-blur-md">
                 <div class="flex items-center space-x-3">
-                    <button id="btn-trigger-sidebar" class="block lg:hidden text-jirai-pink text-xl hover:text-white transition p-1">☰</button>
+                    <button id="btn-trigger-sidebar" class="block lg:hidden text-jirai-pink text-xl hover:text-white transition p-2 bg-jirai-input rounded-xl border border-jirai-pink/10">☰</button>
                     <div class="flex items-center space-x-2" id="room-title">
                         <span class="text-jirai-pink text-xl">#</span> <span>日常沉沦大厅</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div id="pinned-banner" class="hidden text-xs bg-jirai-pink/5 border border-jirai-pink/20 rounded-xl px-2.5 py-1 text-jirai-pink max-w-[150px] sm:max-w-xs truncate">
+                    <div id="pinned-banner" class="hidden text-xs bg-jirai-pink/5 border border-jirai-pink/20 rounded-xl px-2.5 py-1 text-jirai-pink max-w-[120px] sm:max-w-xs truncate">
                         📌 <b>置顶:</b> <span id="pinned-text">暂无消息</span>
                     </div>
                     <span id="voice-status-pill" class="text-[9px] bg-jirai-pink/10 text-jirai-pink px-2 py-0.5 rounded border border-jirai-pink/20 hidden font-bold tracking-widest">RTC ON</span>
@@ -158,7 +155,7 @@
                     <div class="px-4 pb-6 pt-1 flex-shrink-0">
                         <div class="bg-jirai-input rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-md border border-jirai-pink/5 focus-within:border-jirai-pink/20 transition-all duration-300">
                             <button id="btn-trigger-image" class="text-neutral-400 hover:text-jirai-pink transition text-base">➕</button>
-                            <input type="text" id="chat-input" placeholder="输入消息后敲击回车发送..." class="flex-1 bg-transparent text-sm focus:outline-none text-neutral-100 placeholder-neutral-600" autocomplete="off">
+                            <input type="text" id="chat-input" placeholder="输入消息后敲击键盘发送..." class="flex-1 bg-transparent text-sm focus:outline-none text-neutral-100 placeholder-neutral-600" autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -205,10 +202,11 @@
 
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // --- 抽屉侧滑动效控制器 ---
+        // --- 抽屉侧向手势滑动+点击完美控制器 ---
         const btnSidebar = document.getElementById('btn-trigger-sidebar');
         const sidebarWrapper = document.getElementById('sidebar-wrapper');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const mainContentZone = document.getElementById('main-content-zone');
 
         function toggleSidebarDrawer(show) {
             if (show) {
@@ -219,8 +217,30 @@
                 sidebarOverlay.classList.add('hidden');
             }
         }
-        btnSidebar.addEventListener('click', () => toggleSidebarDrawer(true));
+        btnSidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebarDrawer(true);
+        });
         sidebarOverlay.addEventListener('click', () => toggleSidebarDrawer(false));
+
+        // 🚨 新增：手机端左侧边缘划动捕获系统（Swipe-to-Open）
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, {passive: true});
+
+        document.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].clientX;
+            // 从左边缘往右划 超过60px 且起点在屏幕左侧1/3以内
+            if (touchEndX - touchStartX > 60 && touchStartX < window.innerWidth / 3) {
+                toggleSidebarDrawer(true);
+            }
+            // 从右往左划 自动收起
+            if (touchStartX - touchEndX > 60) {
+                toggleSidebarDrawer(false);
+            }
+        }, {passive: true});
+
 
         // 契约选择
         let selectedSeed = "Ares";
@@ -402,7 +422,7 @@
             } else {
                 const pill = document.createElement('div');
                 pill.dataset.emoji = emoji;
-                pill.className = "bg-jirai-input border border-jirai-pink/20 rounded-md px-1.5 py-0.5 text-[10px] text-jirai-pink flex items-center space-x-1 font-bold animate-pulse";
+                pill.className = "bg-jirai-input border border-jirai-pink/20 rounded-md px-1.5 py-0.5 text-[10px] text-jirai-pink flex items-center space-x-1 font-bold";
                 pill.innerHTML = `<span>${emoji}</span><span class="count">1</span>`;
                 box.appendChild(pill);
             }
@@ -428,7 +448,7 @@
         }
 
         async function switchTextChannel(channelId) {
-            toggleSidebarDrawer(false); 
+            toggleSidebarDrawer(false); // 🛑 点击自动关闭抽屉
             if(activeTextChannel && isRtmReady) { try { await rtmClient.unsubscribe(activeTextChannel); } catch(e){} }
             activeTextChannel = channelId; document.getElementById('chat-messages').innerHTML = "";
             document.getElementById('pinned-banner').classList.add('hidden');
@@ -439,7 +459,7 @@
         }
 
         async function switchVoiceChannel(channelId) {
-            toggleSidebarDrawer(false); 
+            toggleSidebarDrawer(false); // 🛑 点击自动关闭抽屉
             if(myInfo.activeVoiceChannel === channelId) return;
             await leaveCurrentVoiceChannel();
             myInfo.activeVoiceChannel = channelId;
@@ -488,7 +508,7 @@
             if(!myInfo.activeVoiceChannel) return;
             
             if (isMobileDevice) {
-                if(!isCameraOn) return alert("请先开启视讯通话，然后再执行翻转镜头操作！");
+                if(!isCameraOn) return alert("请先开启视讯连线，然后再翻转镜头！");
                 currentCameraFacing = (currentCameraFacing === "user") ? "environment" : "user";
                 if(localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); await rtcClient.unpublish(localTracks.videoTrack); }
                 localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({ facingMode: currentCameraFacing });
@@ -619,7 +639,7 @@
             root.style.background = backgrounds[currentBgIdx].startsWith('linear') ? backgrounds[currentBgIdx] : '';
         });
 
-        // 🛑 核心 Bug 修复点：移除了不安全的 body 全局代理，改用显式清晰的事件监听器委派
+        // 🚨 稳定重构：显式绑定，解决手机端触控由于事件冒泡产生的死锁
         document.querySelectorAll('.channel-item').forEach(el => {
             el.addEventListener('click', (e) => {
                 const currentBtn = e.currentTarget;
