@@ -60,7 +60,7 @@
         <div class="bg-jirai-dark p-6 sm:p-8 rounded-2xl w-full max-w-md border border-jirai-pink/30 text-center shadow-2xl">
             <div class="text-3xl mb-1 tracking-widest">🖤 𝔍𝔦𝔯𝔞𝔦 𝔎𝔢𝔦 🖤</div>
             <h2 class="text-base font-bold mb-1 text-white">地雷物语 · 空间自适应大厅</h2>
-            <p class="text-[9px] text-jirai-pink mb-6 tracking-widest uppercase">Agora Authorized Protocol Enabled</p>
+            <p class="text-[9px] text-jirai-pink mb-6 tracking-widest uppercase">Swipe Handlers & Overlay Fixed</p>
             
             <label class="block text-left text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wide">您的专属名号 🎀</label>
             <input type="text" id="username-input" maxlength="12" placeholder="输入进入结界的花名..." class="w-full p-2.5 bg-jirai-blacker rounded-xl focus:outline-none focus:ring-1 focus:ring-jirai-pink mb-6 text-white border border-neutral-800 text-sm">
@@ -106,7 +106,7 @@
                         <div>
                             <div class="text-[10px] font-bold text-neutral-500 px-2 mb-1.5 uppercase tracking-wider">语音多媒体连线</div>
                             <div class="space-y-0.5" id="voice-channels-container">
-                                <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="voice" data-channel="amo_">
+                                <div class="channel-item flex items-center px-2 py-1.5 rounded-xl text-gray-400 hover:bg-jirai-main/30 hover:text-gray-200 cursor-pointer text-sm transition" data-type="voice" data-channel="voice-lobby">
                                     <span class="mr-2">🔮</span> <span>千重夜话连线厅</span>
                                 </div>
                             </div>
@@ -179,8 +179,7 @@
     <input type="file" id="image-loader" accept="image/*" class="hidden">
 
     <script>
-        const APP_ID = "4102aa4f4cd2489fa790efecdf80ca86";
-        const RTC_TOKEN = "007eJxTYIgWOFywonatqsPbiAiGIKfpeq1MawJ9ApoKJy+4OY29QkSBwcTQwCgx0STNJDnFyMTCMi3R3NIgNS01OSXNwiA50cKMrcA9qyGQkeHDBh4GRigE8ZkZEnPzGRgAYNkcYg==";
+        const APP_ID = "e610017f5b374fa2a84e4bce9c50c66a";
         
         let rtcClient = null;
         let rtmClient = null;
@@ -224,7 +223,7 @@
         });
         sidebarOverlay.addEventListener('click', () => toggleSidebarDrawer(false));
 
-        // 手机端左侧边缘划动捕获系统（Swipe-to-Open）
+        // 🚨 新增：手机端左侧边缘划动捕获系统（Swipe-to-Open）
         let touchStartX = 0;
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
@@ -232,9 +231,11 @@
 
         document.addEventListener('touchend', (e) => {
             let touchEndX = e.changedTouches[0].clientX;
+            // 从左边缘往右划 超过60px 且起点在屏幕左侧1/3以内
             if (touchEndX - touchStartX > 60 && touchStartX < window.innerWidth / 3) {
                 toggleSidebarDrawer(true);
             }
+            // 从右往左划 自动收起
             if (touchStartX - touchEndX > 60) {
                 toggleSidebarDrawer(false);
             }
@@ -447,7 +448,7 @@
         }
 
         async function switchTextChannel(channelId) {
-            toggleSidebarDrawer(false); 
+            toggleSidebarDrawer(false); // 🛑 点击自动关闭抽屉
             if(activeTextChannel && isRtmReady) { try { await rtmClient.unsubscribe(activeTextChannel); } catch(e){} }
             activeTextChannel = channelId; document.getElementById('chat-messages').innerHTML = "";
             document.getElementById('pinned-banner').classList.add('hidden');
@@ -458,7 +459,7 @@
         }
 
         async function switchVoiceChannel(channelId) {
-            toggleSidebarDrawer(false); 
+            toggleSidebarDrawer(false); // 🛑 点击自动关闭抽屉
             if(myInfo.activeVoiceChannel === channelId) return;
             await leaveCurrentVoiceChannel();
             myInfo.activeVoiceChannel = channelId;
@@ -467,13 +468,12 @@
 
             try {
                 const numericUid = Math.floor(Math.random() * 8999999 + 1000000); myInfo.rtcUid = numericUid;
-                // 带着临时 Token 加入设定的频道名
-                await rtcClient.join(APP_ID, channelId, RTC_TOKEN, numericUid);
+                await rtcClient.join(APP_ID, channelId, null, numericUid);
                 localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({ AEC: true, ANS: true, AGC: true });
                 if(isMuted) await localTracks.audioTrack.setMuted(true);
                 await rtcClient.publish(localTracks.audioTrack);
                 broadcastUserInfo(); updateVoiceUIRender();
-            } catch (err) { console.error("加入语音频道失败:", err); }
+            } catch (err) { console.error(err); }
         }
 
         async function leaveCurrentVoiceChannel() {
@@ -639,6 +639,7 @@
             root.style.background = backgrounds[currentBgIdx].startsWith('linear') ? backgrounds[currentBgIdx] : '';
         });
 
+        // 🚨 稳定重构：显式绑定，解决手机端触控由于事件冒泡产生的死锁
         document.querySelectorAll('.channel-item').forEach(el => {
             el.addEventListener('click', (e) => {
                 const currentBtn = e.currentTarget;
